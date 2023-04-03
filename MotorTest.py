@@ -1,6 +1,8 @@
 import time             # Time is used for timing
 import RPi.GPIO as GPIO # GPIO is used to access GPIO pins
-import math
+import math             # Math is math
+import hid              # Hid is for controller
+import sys              # sys is for system 
 
 def setMotorDirection(fowardPin, backwardPin, isForwards):
 	""" 
@@ -219,9 +221,82 @@ def test_one_wheel(forwardPin, backwardPin, pwmObject):
 	
 	setMotorDirection(forwardPin, backwardPin, False)
 	time.sleep(5)
+
+def no_wolves_map(x, in_min, in_max, out_min, out_max):
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+def actual_joystick():
+	
+	while True:
+		try:
+			# Read data from the controller
+			button_states = gamepad.read(64)
+			if button_states:
+				print("-----")
+				right_x = button_states[3] - 128
+				right_y = (button_states[4] - 128) * -1
+				
+				# Get the angle and magnitude from the joystick components
+				angle = math.atan2(right_y, right_x)
+				mag = math.sqrt(right_y**2 + right_x**2)
+				
+				print(f"Angle: {angle}, {angle*(180/math.pi)}")
+				
+				# Compute the speed for each motor
+				power1 = math.sin(angle - (1/4 * math.pi)) * mag
+				power2 = math.sin(angle + (1/4 * math.pi)) * mag
+							
+				# Rescale the speed to be from 0 - 100
+				new_power1 = int(no_wolves_map(power1, -150, 150, -100, 100))
+				new_power2 = int(no_wolves_map(power2, -150, 150, -100, 100))
+				
+				print(f"Power1: {new_power1}") 
+				print(f"Power2: {new_power2}") 
+				
+				# Set the direction for front left and back right motors
+				if (new_power2 > 0):
+					setMotorDirection(forwardA, backwardA, True)
+					setMotorDirection(forwardC, backwardC, True)
+				else:
+					setMotorDirection(forwardA, backwardA, False)
+					setMotorDirection(forwardC, backwardC, False)
+				
+				# Set the speed for front left and back right motors
+				pwmA.ChangeDutyCycle(abs(new_power2)) # x percent
+				pwmC.ChangeDutyCycle(abs(new_power2))
+				
+				# Set the direction for the front right and back left motors
+				if (new_power1 > 0):
+					setMotorDirection(forwardB, backwardB, True)
+					setMotorDirection(forwardD, backwardD, True)
+				else:
+					setMotorDirection(forwardB, backwardB, False)
+					setMotorDirection(forwardD, backwardD, False)
+				
+				# Set the speed for the front right and back left motors
+				pwmB.ChangeDutyCycle(abs(new_power1)) # x percent
+				pwmD.ChangeDutyCycle(abs(new_power1))
+				
+			else:
+				print("----")
+				print("No states ready...")
+		except:
+			GPIO.cleanup()
+	
+	
 	
 	
 if __name__ == "__main__":
+	
+	# Try to init controller...
+	try:
+		gamepad = hid.device()
+		gamepad.open(0x054c, 0x09cc)
+		gamepad.set_nonblocking(True)
+	except Exception as e:
+		print(e)
+		print("Could not open controller... :(")
+		sys.exit(1)
 	
 	### Begin Setup ### 
 	# Set up the motor controller pins
@@ -275,7 +350,8 @@ if __name__ == "__main__":
 	GPIO.output(enable_c, False)
 	GPIO.output(enable_d, False)
 	
-	mock_joystick()
+	actual_joystick()
+	#mock_joystick()
 	#testPwm()
 	
 	GPIO.cleanup()
