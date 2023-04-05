@@ -230,26 +230,49 @@ def actual_joystick():
 	while True:
 		try:
 			# Read data from the controller
-			button_states = gamepad.read(64)
+			button_states = list(gamepad.read(64))
 			if button_states:
 				print("-----")
-				right_x = button_states[3] - 128
-				right_y = (button_states[4] - 128) * -1
+				# Normalize the coordinates. This puts then in the range [0, 1]
+				x = button_states[5] / 255 
+				y = button_states[6] / 255 
 				
-				# Get the angle and magnitude from the joystick components
-				angle = math.atan2(right_y, right_x)
-				mag = math.sqrt(right_y**2 + right_x**2)
+				# center the coordinates..
+				x -= 0.5
+				y -= 0.5
 				
-				print(f"Angle: {angle}, {angle*(180/math.pi)}")
+				# flip the y axis so negative is down and positive is up
+				y *= -1
 				
-				# Compute the speed for each motor
+				mag = math.sqrt(x**2 + y**2)
+				
+				# The greatest |mag| = 0.5. Map this to 100% duty cycle
+				
+				angle = math.atan2(y, x)
 				power1 = math.sin(angle - (1/4 * math.pi)) * mag
 				power2 = math.sin(angle + (1/4 * math.pi)) * mag
-							
-				# Rescale the speed to be from 0 - 100
-				new_power1 = int(no_wolves_map(power1, -150, 150, -100, 100))
-				new_power2 = int(no_wolves_map(power2, -150, 150, -100, 100))
 				
+
+				
+				x_left = ((button_states[3] / 255) - 0.5) 
+					
+				power1 += x_left
+				power2 += x_left
+				
+				if power1 > 1:
+					power1 = 1
+				elif power1 < -1:
+					power1 = -1
+
+				if power2 > 1:
+					power2 = 1
+				elif power2 < -1:
+					power2 = -1
+					
+				new_power1 = power1 * 100
+				new_power2 = power2 * 100
+				
+				print(f"Angle: {angle}")
 				print(f"Power1: {new_power1}") 
 				print(f"Power2: {new_power2}") 
 				
@@ -260,7 +283,7 @@ def actual_joystick():
 				else:
 					setMotorDirection(forwardA, backwardA, False)
 					setMotorDirection(forwardC, backwardC, False)
-				
+								
 				# Set the speed for front left and back right motors
 				pwmA.ChangeDutyCycle(abs(new_power2)) # x percent
 				pwmC.ChangeDutyCycle(abs(new_power2))
@@ -277,11 +300,26 @@ def actual_joystick():
 				pwmB.ChangeDutyCycle(abs(new_power1)) # x percent
 				pwmD.ChangeDutyCycle(abs(new_power1))
 				
+				print(x_left)
+				if (x_left > 0.2):
+					setMotorDirection(forwardA, backwardA, True)
+					setMotorDirection(forwardC, backwardC, False)
+					setMotorDirection(forwardB, backwardB, False)
+					setMotorDirection(forwardD, backwardD, True)
+				elif (x_left < -0.2):
+					setMotorDirection(forwardA, backwardA, False)
+					setMotorDirection(forwardC, backwardC, True)
+					setMotorDirection(forwardB, backwardB, True)
+					setMotorDirection(forwardD, backwardD, False)
+				
 			else:
 				print("----")
 				print("No states ready...")
+		except Exception as e:
+			print(e)
 		except:
 			GPIO.cleanup()
+			break
 	
 	
 	
@@ -290,9 +328,9 @@ if __name__ == "__main__":
 	
 	# Try to init controller...
 	try:
-		gamepad = hid.device()
-		gamepad.open(0x054c, 0x09cc)
-		gamepad.set_nonblocking(True)
+		gamepad = hid.Device(0x054c, 0x09cc)
+		#gamepad.open()
+		#gamepad.set_nonblocking(True)
 	except Exception as e:
 		print(e)
 		print("Could not open controller... :(")
