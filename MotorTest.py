@@ -252,56 +252,37 @@ def actual_joystick():
 				power1 = math.sin(angle - (1/4 * math.pi)) * mag
 				power2 = math.sin(angle + (1/4 * math.pi)) * mag
 				
+				our_max = max(abs(power1), abs(power2))
 
+				turn = ((button_states[3] / 255) - 0.5) 
 				
-				x_left = ((button_states[3] / 255) - 0.5) 
-					
-				power1 += x_left
-				power2 += x_left
-				
-				if power1 > 1:
-					power1 = 1
-				elif power1 < -1:
-					power1 = -1
-
-				if power2 > 1:
-					power2 = 1
-				elif power2 < -1:
-					power2 = -1
-					
-				new_power1 = power1 * 100
-				new_power2 = power2 * 100
+				a_power = 100 * (power2 + turn) 
+				c_power = 100 * (power2 - turn) 
+				b_power = 100 * (power1 - turn) 
+				d_power = 100 * (power1 + turn) 
 				
 				print(f"Angle: {angle}")
-				print(f"Power1: {new_power1}") 
-				print(f"Power2: {new_power2}") 
+				print(f"a_power: {a_power}") 
+				print(f"b_power: {b_power}") 
+				print(f"c_power: {c_power}")
+				print(f"d_power: {d_power}") 
 				
-				# Set the direction for front left and back right motors
-				if (new_power2 > 0):
-					setMotorDirection(forwardA, backwardA, True)
-					setMotorDirection(forwardC, backwardC, True)
-				else:
-					setMotorDirection(forwardA, backwardA, False)
-					setMotorDirection(forwardC, backwardC, False)
-								
-				# Set the speed for front left and back right motors
-				pwmA.ChangeDutyCycle(abs(new_power2)) # x percent
-				pwmC.ChangeDutyCycle(abs(new_power2))
+				set_direction(forwardA, backwardA, a_power)
+				set_direction(forwardB, backwardB, b_power)
+				set_direction(forwardC, backwardC, c_power)
+				set_direction(forwardD, backwardD, d_power)
 				
-				# Set the direction for the front right and back left motors
-				if (new_power1 > 0):
-					setMotorDirection(forwardB, backwardB, True)
-					setMotorDirection(forwardD, backwardD, True)
-				else:
-					setMotorDirection(forwardB, backwardB, False)
-					setMotorDirection(forwardD, backwardD, False)
+				pwmA.ChangeDutyCycle(abs(a_power))
+				pwmB.ChangeDutyCycle(abs(b_power))
+				pwmC.ChangeDutyCycle(abs(c_power))
+				pwmD.ChangeDutyCycle(abs(d_power))
 				
-				# Set the speed for the front right and back left motors
-				pwmB.ChangeDutyCycle(abs(new_power1)) # x percent
-				pwmD.ChangeDutyCycle(abs(new_power1))
+			
 				
-				print(x_left)
+				print(turn)
+				"""
 				if (x_left > 0.2):
+					# Invert FL and BR, and FR and BL 
 					setMotorDirection(forwardA, backwardA, True)
 					setMotorDirection(forwardC, backwardC, False)
 					setMotorDirection(forwardB, backwardB, False)
@@ -310,7 +291,7 @@ def actual_joystick():
 					setMotorDirection(forwardA, backwardA, False)
 					setMotorDirection(forwardC, backwardC, True)
 					setMotorDirection(forwardB, backwardB, True)
-					setMotorDirection(forwardD, backwardD, False)
+					setMotorDirection(forwardD, backwardD, False) """
 				
 			else:
 				print("----")
@@ -320,8 +301,16 @@ def actual_joystick():
 		except:
 			GPIO.cleanup()
 			break
+
+def constrain(val, min_val, max_val):
+    return min(max_val, max(min_val, val))
+    
+def set_direction(forwardsPin, backwardsPin, power):
 	
-	
+	if power > 0:
+		setMotorDirection(forwardsPin, backwardsPin, True)
+	else:
+		setMotorDirection(forwardsPin, backwardsPin, False)
 	
 	
 if __name__ == "__main__":
