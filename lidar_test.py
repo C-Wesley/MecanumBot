@@ -58,7 +58,7 @@ def connect_to_lidar():
 	return lidar
 
 
-|## Main body of code ## 
+## Main body of code ## 
 
 # Create an interactive matplotlib plot. 
 plt.ion()

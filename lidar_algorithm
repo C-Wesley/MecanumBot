@@ -1,0 +1,111 @@
+from adafruit_rplidar import RPLidar
+import matplotlib.pyplot as plt
+import math
+import time
+import sys
+import numpy
+
+def process_scans(scans):
+
+    #to set the cone range for movement
+    lowerBound = math.pi/4
+    upperBound = 3*lowerBound
+
+    #dict data structure to store angle as key and distance as value
+    dict = {}
+
+    #alg for storing angle and distance based on the 2 bounds, accounted for y axis inversion
+    for scan in scans:
+        for _, angle, dis in scan:
+            if(angle >= 5*lowerBound and angle <= 7*lowerBound): 
+                angle = 2*math.pi - angle        
+                dict[angle] = dis
+    return max(dict, key = dict.get) #returns the key with the maximum dict so it returns the angle
+def autoMovement():
+	
+    #may need some delays
+    angle = process_scans
+
+    power1 = math.sin(angle - (1/4)*math.pi)
+	power2 = math.sin(angle + (1/4)*math.pi)
+			
+    #how do we get mag?
+
+    '''			
+	turn = ((button_states[3] / 255) - 0.5)
+				
+				
+	our_max = max(abs(power1), abs(power2))
+    a_power = mag*power2/our_max + turn
+	b_power = mag*power1/our_max - turn
+	d_power = mag*power1/our_max + turn
+    c_power = mag*power2/our_max - turn
+				
+	if (mag + abs(turn) > 1):
+				
+		a_power /= mag + abs(turn)
+		b_power /= mag + abs(turn)
+		c_power /= mag + abs(turn)
+		d_power /= mag + abs(turn)
+				
+	a_power *= 100
+	b_power *= 100
+	c_power *= 100
+	d_power *= 100
+ 
+				
+	print(f"Angle: {angle}")
+	print(f"a_power: {a_power}") 
+	print(f"b_power: {b_power}") 
+	print(f"c_power: {c_power}")
+	print(f"d_power: {d_power}") 
+				
+	set_direction(forwardA, backwardA, a_power)
+	set_direction(forwardB, backwardB, b_power)
+	set_direction(forwardC, backwardC, c_power)
+	set_direction(forwardD, backwardD, d_power)
+				
+	pwmA.ChangeDutyCycle(abs(a_power))
+	pwmB.ChangeDutyCycle(abs(b_power))
+	pwmC.ChangeDutyCycle(abs(c_power))
+	pwmD.ChangeDutyCycle(abs(d_power))
+				
+			'''
+			
+            
+## main body of code ##
+# Until we exit the program
+while True:
+	
+	# Get the lidar object
+	lidar = connect_to_lidar()
+	scans = []
+	
+	try:
+		# Get the scans from the API
+		for indx, scan in enumerate(lidar.iter_scans()):
+			scans.append(scan)
+			# If we got 10 scans, break to update our plot
+			if indx > 10: 
+				break
+				
+		# Disconnect from the lidar. 
+		# I had issues trying to use the same lidar instance over time.
+		# so we will just re instantiate it each time we need it.
+		lidar.stop()
+		lidar.disconnect()
+
+		process_scans(scans)
+
+	except KeyboardInterrupt:
+		print('Exiting for keyboard interrupt...') # good 
+		lidar.stop()
+		lidar.disconnect()
+		sys.exit(0)
+
+	except Exception as e:
+		print('Exiting for error...') # bad
+		print(e)                      # print error
+		lidar.stop()
+		lidar.disconnect()
+		sys.exit(1)
