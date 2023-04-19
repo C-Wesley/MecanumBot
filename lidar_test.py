@@ -19,14 +19,14 @@ def process_data_scans(scans):
 		# in each scan we can look at the quality, the angle, and the distance
 		for _, angle, dis in scan:
 			# Take the angle and append it to a list in radian format
-			angles.append(angle*(math.pi/180))
+			angles.append(2*math.pi - angle*(math.pi/180))
 			# Take the distance and append it to a list
 			distances.append(dis)
 	
 	# Clear our axis 
 	ax.clear()
 	# Limit it to 500 (found expirementally for the desk)
-	ax.set_rlim([0, 500])
+	ax.set_rlim([0, 1000])
 	# Plot the radians and distances
 	ax.scatter(angles, distances, s=5)
 	# Update the figure
@@ -77,7 +77,7 @@ while True:
 		for indx, scan in enumerate(lidar.iter_scans()):
 			scans.append(scan)
 			# If we got 10 scans, break to update our plot
-			if indx > 10: 
+			if indx > 20: 
 				break
 				
 		# Disconnect from the lidar. 

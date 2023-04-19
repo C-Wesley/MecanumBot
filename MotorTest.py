@@ -3,7 +3,30 @@ import RPi.GPIO as GPIO # GPIO is used to access GPIO pins
 import math             # Math is math
 import hid              # Hid is for controller
 import sys              # sys is for system 
-from lidar_test import connect_to_lidar
+#from lidar_test import connect_to_lidar
+from adafruit_rplidar import RPLidar
+
+def connect_to_lidar():
+	
+	# Until the lidar is connected
+	while True:
+		
+		try:
+			print("Trying to connect to lidar...")
+			
+			# Try to connect to the port
+			PORT_NAME = '/dev/ttyUSB0'
+			lidar = RPLidar(None, PORT_NAME, timeout=3)
+			break
+		except Exception as e:
+			print(e)
+		except:
+			print("Something failied...")
+			print("Trying again in 5 seconds")
+			time.sleep(5)
+	
+	# If we made it here, return the lidar object
+	return lidar
 
 def setMotorDirection(fowardPin, backwardPin, isForwards):
 	""" 
@@ -204,6 +227,8 @@ def mock_joystick():
 			setMotorDirection(forwardB, backwardB, False)
 			setMotorDirection(forwardD, backwardD, False)
 		
+		
+		
 		# Set the speed for the front right and back left motors
 		pwmB.ChangeDutyCycle(abs(new_power2)) # x percent
 		pwmD.ChangeDutyCycle(abs(new_power2))
@@ -338,20 +363,83 @@ def set_direction(forwardsPin, backwardsPin, power):
 	
 def process_scans(scans):
 
-    #to set the cone range for movement
-    lowerBound = math.pi/4
-    upperBound = 3*lowerBound
-
     #dict data structure to store angle as key and distance as value
-    dict = {}
+	dict = {}
 
     #alg for storing angle and distance based on the 2 bounds, accounted for y axis inversion
-    for scan in scans:
-        for _, angle, dis in scan:
-            if(angle >= 5*lowerBound and angle <= 7*lowerBound): 
-                angle = 2*math.pi - angle        
-                dict[angle] = dis
-    return max(dict, key = dict.get) #returns the key with the maximum dict so it returns the angle
+	for scan in scans:
+		for _, angle, dis in scan:
+			
+			angle = 2*math.pi - (angle*math.pi/180)
+			if (angle >= lowerBound and angle <= upperBound):        
+				dict[angle] = dis
+				
+	return max(dict, key = dict.get), min(dict.values()) #returns the key with the maximum dict so it returns the angle
+
+def adjust_bounds():
+	
+	# Scan again
+	scans = lidar_scan() 
+	
+	myDict = {}
+	
+	for scan in scans:
+		for _, angle, dis in scan:
+			angle = 2*math.pi - (angle*math.pi/180) 
+			if not (angle >= lowerBound and angle <= upperBound):
+				myDict[angle] = dis
+	
+	max_angle = max(myDict, key= myDict.get) 
+	
+	# 1. >= pi/4 <= 3pi/4
+	# 2. >= 3pi/4 <= 5pi/4
+	# 3. >= 5pi/4 <= 7pi/4
+	# Special Case of 9pi/4 and 7pi/4
+	
+	if max_angle >= math.pi/4 and max_angle <= 3*math.pi/4:
+		# Case 1 
+		lowerBound = math.pi/4 
+		upperBound = 3*math.pi/4
+		
+	elif max_angle >= 3*math.pi/4 and max_angle <= 5*math.pi/4:
+		# Case 2
+		lowerBound = 3*math.pi/4 
+		upperBound = 5*math.pi/4 
+		
+	elif max_angle >= 5*math.pi/4 and max_angle <= 7*math.pi/4:
+		# Case 3
+		lowerBound = 5*math.pi/4 
+		upperBound = 7*math.pi/4  
+	else:
+		return# Special Case
+		
+	
+def lidar_scan():
+	
+	# Get the lidar object
+	
+	while True:
+		scans = []
+		lidar = connect_to_lidar()
+		try:
+			# Get the scans from the API
+			for indx, scan in enumerate(lidar.iter_scans()):
+				scans.append(scan)
+				# If we got 10 scans, break to update our plot
+				if indx > 10: 
+					break
+		
+			# Disconnect from the lidar. 
+			# I had issues trying to use the same lidar instance over time.
+			# so we will just re instantiate it each time we need it.
+			lidar.stop()
+			lidar.disconnect()
+			return scans
+		except:
+			print("Lidar Scan Failed")
+			lidar.stop()
+			lidar.disconnect()
+
 
 def autonomous_movement():
 
@@ -381,7 +469,8 @@ def autonomous_movement():
 			lidar.stop()
 			lidar.disconnect()
 
-			angle = process_scans(scans)
+			angle, min_distance = process_scans(scans)
+			print(angle*180/math.pi)
 
 			mag = 0.5
 			power1 = 100 * (math.sin(angle - (1/4)*math.pi) * mag)
@@ -396,9 +485,18 @@ def autonomous_movement():
 			pwmB.ChangeDutyCycle(abs(power1))
 			pwmC.ChangeDutyCycle(abs(power2))
 			pwmD.ChangeDutyCycle(abs(power1))
+			
+			print(min_distance)
+			if min_distance <= distance_thres:
+				pwmA.ChangeDutyCycle(0)
+				pwmB.ChangeDutyCycle(0)
+				pwmC.ChangeDutyCycle(0)
+				pwmD.ChangeDutyCycle(0)
+				
+				adjust_bounds()
 
 			# let it travel for 2 seconds
-			time.sleep(2)
+			time.sleep(1)
 
 		except KeyboardInterrupt:
 			print('Exiting for keyboard interrupt...') # good 
@@ -454,6 +552,11 @@ if __name__ == "__main__":
 		print("Could not open controller... :(")
 		sys.exit(1)
 	
+	distance_thres = 500
+	#to set the cone range for movement
+	lowerBound = math.pi/4
+	upperBound = 3*math.pi/4
+	
 	### Begin Setup ### 
 	# Set up the motor controller pins
 	# Set up the motor controller pins for the front motors
@@ -506,6 +609,8 @@ if __name__ == "__main__":
 	GPIO.output(enable_c, False)
 	GPIO.output(enable_d, False)
 	
+	
+	autonomous_movement()
 	#actual_joystick()
 	#mock_joystick()
 	#testPwm()
