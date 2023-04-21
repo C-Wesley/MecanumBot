@@ -33,7 +33,7 @@ class DirectionManager:
                 if (angle >= self.lowerBound and angle <= self.upperBound):
                     self.filteredScans[angle] = dis
         
-    def get_angle_wth_max_distance(self):
+    def get_angle_with_max_distance(self):
         """ Gets the angle that has the max distance from the filtered scans """
 
         return max(self.filteredScans, key=self.filteredScans.get)   

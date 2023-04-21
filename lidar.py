@@ -29,6 +29,7 @@ class Lidar:
                 # Set the flag for connection 
                 # This will end the loop 
                 self.connected = True
+                print("Connected to lidar!")
 
             except Exception as e:
                 # If we encounter some error, print it.
@@ -42,29 +43,30 @@ class Lidar:
         """
         This method will disconnect from the lidar
         """
-
-        self.lidar.stop()
-        self.lidar.disconnect()
-        self.connected = False
+        if self.connected:
+            self.lidar.stop()
+            self.lidar.disconnect()
+            self.connected = False
     
     def scan(self, num_scans):
         """
         This method will actually use the RPLidar object
         to gather some data from the scans
         """
-
-        # If we are not connected, we need to connect. 
-        if not self.connected:
-            self.connect()
-        else:
-            # If we were previously connected, we should
-            # disconnect and reconnect.
-            self.disconnect()
-            self.connect()
-        
-        scans = []
-        # Try to gather some scans
         try:
+            
+            # If we are not connected, we need to connect. 
+            if not self.connected:
+                self.connect()
+            else:
+                # If we were previously connected, we should
+                # disconnect and reconnect.
+                self.disconnect()
+                self.connect()
+            
+            scans = []
+            # Try to gather some scans
+
             
             # for every scan, append it to a list
             for indx, scan in enumerate(self.lidar.iter_scans()):
@@ -78,7 +80,8 @@ class Lidar:
             self.disconnect()
             return scans
         
-        except:
-            
+        except Exception as e:
+            print(e)
             print("Lidar scan failed")
             self.disconnect()
+            self.connected = False

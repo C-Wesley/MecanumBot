@@ -82,5 +82,15 @@ class MotorController:
         
         enableObject.ChangeDutyCycle(abs(power))
     
-    def cleanup():
+    def cleanup(self):
         GPIO.cleanup()
+
+    def stopAllMotors(self):
+        """
+        Method to stop all the motors
+        """
+        
+        self.pwmA.ChangeDutyCycle(0)
+        self.pwmB.ChangeDutyCycle(0)
+        self.pwmC.ChangeDutyCycle(0)
+        self.pwmD.ChangeDutyCycle(0)

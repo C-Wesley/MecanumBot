@@ -2,15 +2,12 @@ import time
 import math
 
 from controller import Controller
-from direction import DirectionManager
-from lidar import Lidar
 from motors import MotorController
 
 if __name__ == "__main__":
 
     controller = Controller()
     motors = MotorController()
-    directions = DirectionManager()
 
     running = True
     while running:
@@ -19,10 +16,10 @@ if __name__ == "__main__":
             controller.update_button_states()
 
             if controller.button_states != []:
-                x = controller.get_right_x_value()
-                y = controller.get_right_y_value()
+                x = controller.get_right_x_value()/255
+                y = controller.get_right_y_value()/255
                 x_l = controller.get_left_x_value()
-                
+
                 # center the coordinates..
                 x -= 0.5
                 y -= 0.5
