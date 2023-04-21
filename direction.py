@@ -15,7 +15,6 @@ class DirectionManager:
         self.disThres = distance_thresh
 
         self.filteredScans = {}
-        self.filteredScansAngle = {}
     
     def filter_scans(self, scans):
         """
@@ -33,22 +32,20 @@ class DirectionManager:
 
                 if (angle >= self.lowerBound and angle <= self.upperBound):
                     self.filteredScans[angle] = dis
-    #hi
+
     def filter_scansAlg(self, scans):
         self.filteredScansAngle = {}
 
         for scan in scans:
+                for _, angle, dis in scan:
+                        angle = int(angle)           
+                        
+                        if (angle >= self.lowerBound * (180/math.pi)-0.5) and (angle <= self.lowerBound*(180/math.pi)+0.5):
+                                self.filteredScansAngle[int(self.lowerBound*(180/math.pi))] = dis
+                                
+                        elif (angle >= self.upperBound* (180/math.pi)-0.5) and (angle <=self.upperBound*(180/math.pi)+0.5):
+                                self.filteredScansAngle[int(self.upperBound*(180/math.pi))] = dis
 
-            for _, angle, dis in scan:
-                
-                angle = int(angle)           
-
-
-                if (angle == self.lowerBound * (180/math.pi)  or angle == self.upperBound * (180/math.pi)):
-                    self.filteredScansAngle[angle] = dis
-
-
-        
     def get_angle_with_max_distance(self):
         """ Gets the angle that has the max distance from the filtered scans """
 

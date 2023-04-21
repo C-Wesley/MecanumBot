@@ -25,7 +25,7 @@ class Lidar:
                 # Connect to this port 
                 PORT_NAME = '/dev/ttyUSB0'
                 lidar = RPLidar(None, PORT_NAME, timeout=3)
-                
+                self.lidar = lidar
                 # Set the flag for connection 
                 # This will end the loop 
                 self.connected = True
@@ -36,8 +36,6 @@ class Lidar:
                 # The loop will continue 
                 print("Failed to connect to lidar...")
                 print("Retrying...")
-
-        self.lidar = lidar
     
     def disconnect(self):
         """

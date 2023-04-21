@@ -18,7 +18,7 @@ if __name__ == "__main__":
 	while running:
 		try:
 			# make sure we are stationary 
-			motors.stopAllMotors()
+#			motors.stopAllMotors()
 			
 			# Get some scans
 			scans = lidar.scan(num_scans)
@@ -34,19 +34,19 @@ if __name__ == "__main__":
 			print(angle*180/math.pi)
 			print(min_distance)
 			
-			mag = 0.5
+			mag = 0.2
 			power1 = 100*(math.sin(angle-(1/4)*math.pi)*mag)
 			power2 = 100*(math.sin(angle+(1/4)*math.pi)*mag)
 			
 			if min_distance <= directions.disThres:
 				motors.stopAllMotors()
 			else:
-				motors.setMotorPower(motors.forwardA, motors.backwardA, motors.pwmA, power1)
-				motors.setMotorPower(motors.forwardB, motors.backwardB, motors.pwmB, power2)
-				motors.setMotorPower(motors.forwardC, motors.backwardC, motors.pwmC, power1)
-				motors.setMotorPower(motors.forwardD, motors.backwardD, motors.pwmD, power2)
-			
-			time.sleep(1)
+				motors.setMotorPower(motors.forwardA, motors.backwardA, motors.pwmA, power2)
+				motors.setMotorPower(motors.forwardB, motors.backwardB, motors.pwmB, power1)
+				motors.setMotorPower(motors.forwardC, motors.backwardC, motors.pwmC, power2)
+				motors.setMotorPower(motors.forwardD, motors.backwardD, motors.pwmD, power1)
+			time.sleep(0.1)			
+#			time.sleep(1)
 		
 		except KeyboardInterrupt:
 			print("Exiting for keyboard interrupt")
