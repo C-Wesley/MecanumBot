@@ -14,6 +14,7 @@ def process_data_scans(scans):
 	
 	# Create a list for angles and distances
 	angles, distances = [], []
+	myDict = {}
 	
 	for scan in scans:
 		# in each scan we can look at the quality, the angle, and the distance
@@ -22,7 +23,10 @@ def process_data_scans(scans):
 			angles.append(2*math.pi - angle*(math.pi/180))
 			# Take the distance and append it to a list
 			distances.append(dis)
+			
+			myDict[angle] = dis
 	
+	print(max(myDict, key=myDict.get) )
 	# Clear our axis 
 	ax.clear()
 	# Limit it to 500 (found expirementally for the desk)
