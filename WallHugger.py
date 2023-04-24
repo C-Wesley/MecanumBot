@@ -53,10 +53,10 @@ if __name__ == "__main__":
 				power2 = (math.sin((math.pi/2)+(1/4)*math.pi)) 
 				
 				our_max = max(abs(power1), abs(power2))
-				a_power = mag*power2/our_max - turn
-				b_power = mag*power1/our_max + turn
-				d_power = mag*power1/our_max - turn
-				c_power = mag*power2/our_max + turn
+				a_power = mag*power2/our_max + turn
+				b_power = mag*power1/our_max - turn
+				d_power = mag*power1/our_max + turn
+				c_power = mag*power2/our_max - turn
 				
 				
 				
