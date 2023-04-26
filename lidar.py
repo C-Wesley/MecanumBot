@@ -83,3 +83,5 @@ class Lidar:
             print("Lidar scan failed")
             self.disconnect()
             self.connected = False
+
+
