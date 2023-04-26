@@ -7,6 +7,7 @@ class Controller:
         self.connected = False
         self.gamepad = None
         self.button_states = None
+        self.toggleFlag = 0 
 
         self.connect()
 
@@ -32,3 +33,9 @@ class Controller:
     
     def get_left_x_value(self):
         return self.button_states[3]
+    
+    #test
+    #test
+    def get_circle_button(self):
+        circleDetect = self.button_states[5]        
+        return circleDetect & 64 == 64  
