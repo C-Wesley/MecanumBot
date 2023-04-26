@@ -45,6 +45,20 @@ class DirectionManager:
                                 
                         elif (angle >= self.upperBound* (180/math.pi)-1) and (angle <=self.upperBound*(180/math.pi)+1):
                                 self.filteredScansAngle[int(self.upperBound*(180/math.pi))] = dis
+    def filter_scansAlg180(self, scans):
+        self.filteredScansAngle = {}
+
+        for scan in scans:
+                for _, angle, dis in scan:
+                        angle = int(angle)           
+                        
+                        #for 135
+                        if (angle >= self.lowerBound * (180/math.pi)-0.5) and (angle <= self.lowerBound*(180/math.pi)+0.5):
+                                self.filteredScansAngle[int(self.lowerBound*(180/math.pi))] = dis
+                        
+                        #for 180
+                        elif (angle >= self.upperBound* (180/math.pi)-0.5) and (angle <=self.upperBound*(180/math.pi)+0.5):
+                                self.filteredScansAngle[int(self.upperBound*(180/math.pi))] = dis
 
     def get_angle_with_max_distance(self):
         """ Gets the angle that has the max distance from the filtered scans """
