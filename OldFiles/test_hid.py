@@ -27,12 +27,14 @@ try:
 	while True:
 		
 		#Get the report 
-		report = list(gamepad.read(78))
+		report = gamepad.read(78)
+		print(report)
+		print(list(report))
 		
 		# Print out the report to view
-		for indx, byte in enumerate(report[3:8]):
-			print(f"byte[{indx+3}] = {byte}, {hex(byte)}, ", end="")
-			print("{:08b}".format(byte))
+		#for indx, byte in enumerate(report[3:8]):
+		#	print(f"byte[{indx+3}] = {byte}, {hex(byte)}, ", end="")
+		#	print("{:08b}".format(byte))
 		
 		
 except Exception as e:

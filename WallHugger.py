@@ -41,7 +41,7 @@ if __name__ == "__main__":
 			if upperDistance != 0 and lowerDistance != 0:
 				
 				turn = (upperDistance-lowerDistance)/max(upperDistance,lowerDistance)
-				turn = turn/2
+				turn = turn/4
 				#if(upperDistance > lowerDistance):
 				#	turn = (upperDistance - lowerDistance)/max(upperDistance,lowerDistance)
 				#elif(upperDistance < lowerDistance):
