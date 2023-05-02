@@ -30,8 +30,8 @@ if __name__ == "__main__":
 			# Get the variables we need to make decisions with 
 			print(directions.filteredScansAngle)
 			
-			x2 = 800 #upper Bound
-			x1 = 300 #lower Bound
+			x2 = 1000 #upper Bound
+			x1 = 500 #lower Bound
 			wall = directions.filteredScansAngle.get(int(math.pi), 0) #gets the distance at angle 180
 			lower = directions.filteredScansAngle.get(int(directions.lowerBound*(180/math.pi)), 0) #gets the distance at angle 150
 			upper = directions.filteredScansAngle.get(int(directions.upperBound*(180/math.pi)), 0) 
