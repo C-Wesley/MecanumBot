@@ -31,9 +31,11 @@ For these algorithms, Assume angle 0 is the right side of the robot, angle 90 is
 
 ## Parallel Wall Algorithm
 To ensure the robot is parallel to the left wall, we are monitoring the distance at the angles 150 degrees (call this A) and 210 degrees (call this B) using the lidar. This forms a triangle between the center of the lidar and the points on the wall. We know that the robot is parallel with the wall if A = B. If A > B, then the robot is looking right and needs to turn back left. If A < B, then the robot is looking left and needs to trun back right. 
+![Parallel Wall Algorithm](https://raw.githubusercontent.com/C-Wesley/MecanumBot/main/media/parallel_wall_diagram.png "Parallel Wall Algorithm")
 
 ## Wall Distance Constraint Algorithm
 To add a wall distance contraint, we begin monitoring the distance at 180 degrees (call this Xw). If Xw is between our upper and lower bound, we are good. If Xw is < lower bound, we need to go right. If Xw is > Upper bound, we need to go left. We do this by taking advantage of the diagonal movemnet of the robot. Assume we want to follow the wall, therefore, when our Xw is within the lower and upper bound, we direct the robot to go straight. If we are not within the bound, we calculate theta using A and Xw. Then we subtract or add this theta to 90 depending on the case. This causes a strafe movement towards the lower and upper bounds.
+![Wall Distance Constraint Algorithm](https://raw.githubusercontent.com/C-Wesley/MecanumBot/main/media/wall_constraint_diagram.png "Wall Distance Contraint Algorithm")
 
 # Demos 
 
