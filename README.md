@@ -39,3 +39,13 @@ To add a wall distance contraint, we begin monitoring the distance at 180 degree
 
 # Demos 
 
+## Joystick Demo
+![Joystick Demo](https://github.com/C-Wesley/MecanumBot/blob/main/media/gifs/joystick.gif "Joystick Demo")
+
+## Parallel Wall Algorithm Demos
+![Parallel Wall Alg Demo 1](https://github.com/C-Wesley/MecanumBot/blob/main/media/gifs/parallel_1.gif "Parallel Wall Alg Demo 1")
+![Parallel Wall Alg Demo 2](https://github.com/C-Wesley/MecanumBot/blob/main/media/gifs/parallel_2.gif "Parallel Wall Alg Demo 2")
+![Parallel Wall Alg Demo 3](https://github.com/C-Wesley/MecanumBot/blob/main/media/gifs/parallel_3.gif "Parallel Wall Alg Demo 3")
+## Wall Constraint Algorithm Demos
+![Wall Constraint Alg Demo 1](https://github.com/C-Wesley/MecanumBot/blob/main/media/gifs/wall_1.gif "Wall Constraint Alg Demo 1")
+![Wall Constraint Alg Demo 2](https://github.com/C-Wesley/MecanumBot/blob/main/media/gifs/wall_2.gif "Wall Constraint Alg Demo 2")
