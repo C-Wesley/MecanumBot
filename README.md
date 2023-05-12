@@ -12,21 +12,22 @@ The purpose of this project is to utilize mecahnum wheels to remotely control a 
 # Mecanum Wheels
 ![Birds Eye View of the robot](https://github.com/C-Wesley/MecanumBot/blob/main/media/topView_wheels.jpg "Top View")
 ![Worms Eye View of the robot](https://github.com/C-Wesley/MecanumBot/blob/main/media/bottomView_wheels.jpg "Bottom View")
-The import thing to note about the mounting of the mecanum wheels is that from a birds eye view, the wheels should form an X. From the worms view, this will look opposite. However, this is very important to get right to ensure the the direction of force is in the proper direction.
 
-In this diagram, you can see the direction of the force vectors. Notice that if you resolve some unit vectors, completely sideways movement, and diagonal movements are possible. 
+The important thing to note about the mounting of the mecanum wheels is that from a birds eye view, the wheels should form an X. From the worms view, this will be the opposite. This is needed to ensure that the direction of force is in the proper direction.
+
+This diagram showcases the direction of the force vectors. Notice that the unit vectors for these wheels can have sideways and diagonal movements. 
 ![Force Vector Directions](https://github.com/C-Wesley/MecanumBot/blob/main/media/mecanumWheel_directions.png "Force Directions")
 
 # HID with PS4 
-This is what the data we receive from the HID report looks like. It is a bytes data type that we can cast to a list and pick out bytes or bits as required. Consult the following map for more information: [HID Byte Map]https://www.psdevwiki.com/ps4/DS4-USB
+This picture is the data from the HID report. It is in a string of bytes. These values are then casted to a list in order to extract out certain bytes or bits as required. More information can be found here: [HID Byte Map]https://www.psdevwiki.com/ps4/DS4-USB
 ![PS4 HID Data](https://github.com/C-Wesley/MecanumBot/blob/main/media/ps4_hid.png "PS4 HID Data")
 
 # Joystick Control 
-We are using the magnitude of the x and y components of the joystick as the power to the motors. However, since the force vector for each motor is off by + or - pi/4, we multiply by sin(atan2(y/x) + or - pi/4) for each motor. Which motor dictates if it is +pi/4 or -pi/4.  
+The general power equation used for the motors control is the following: Power = magnitude * sin(angle +- π/4). The magnitude of the x and y components of the joystick is used to power the motors. The arctangent of the x and y components of the joystick is used to calculate the angle which dictates the direction of movement. However, since the force vector for each motor is off by either + π/4 or - π/4, it is added to the angle to generate the correct movement for the vehicle. 
 ![Diagram of a vector with x and y component](https://github.com/C-Wesley/MecanumBot/blob/main/media/joystick_diagram.png "Vector Diagram")
 
 # Power Delivery 
-To Deliver the power to the Raspberry Pi 3, we are using an LM338. This is an adjustable regulator capable of supplying up to 5A. We have three of them in parallel to help with heat dissapation. 
+The Raspberry Pi 3 Model B needs about 3 amps of current. To deliver the power to the Raspberry Pi 3 Model B, the LM338 is used. It is an adjustable regulator capable of supplying up to 5 amps. A voltage divider setup was used to get ~5 volts for the output. Although one can be used for this project, three of them were used in parallel to help with heat dissapation. A circuit diagram is presented below. 
 ![LM338 Circuit Diagram](https://github.com/C-Wesley/MecanumBot/blob/main/media/power_delivery.png "LM338 Circuit Diagram")
 
 # Autonomous Algorithms
